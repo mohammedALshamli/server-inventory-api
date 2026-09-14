@@ -1,0 +1,13 @@
+{
+  "servers": [
+    { "name": "web-01",   "env": "prod",    "status": "online",      "cpu_cores": 8,  "ip": "10.0.1.10" },
+    { "name": "web-02",   "env": "prod",    "status": "online",      "cpu_cores": 8,  "ip": "10.0.1.11" },
+    { "name": "db-01",    "env": "prod",    "status": "online",      "cpu_cores": 16, "ip": "10.0.1.20" },
+    { "name": "db-02",    "env": "prod",    "status": "maintenance", "cpu_cores": 16, "ip": "10.0.1.21" },
+    { "name": "cache-01", "env": "prod",    "status": "offline",     "cpu_cores": 4,  "ip": "10.0.1.30" },
+    { "name": "web-s1",   "env": "staging", "status": "online",      "cpu_cores": 4,  "ip": "10.0.2.10" },
+    { "name": "db-s1",    "env": "staging", "status": "online",      "cpu_cores": 8,  "ip": "10.0.2.20" },
+    { "name": "build-01", "env": "dev",     "status": "online",      "cpu_cores": 4,  "ip": "10.0.3.10" },
+    { "name": "test-01",  "env": "dev",     "status": "offline",     "cpu_cores": 2,  "ip": "10.0.3.11" }
+  ]
+}
