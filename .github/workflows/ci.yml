@@ -81,7 +81,7 @@ jobs:
         run: |
           response=$(curl -s http://127.0.0.1:5000/readyz)
           echo "got $response"
-          echo "$response" | grep '"servers_loaded": 9'
+          echo "$response" | grep '"servers_loaded":9'
           
       - name: Check /version response (Task 10 Bonus)
         run: |
