@@ -1,0 +1,90 @@
+name: CI
+
+# Task 2: Set the triggers
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  # Task 1 & 5: Test job with parallel execution
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Do not cancel if one version fails
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      # Task 3: Check out code and set up Python
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Task 4: Run linter and tests
+      - name: Run flake8
+        run: flake8
+
+      - name: Run pytest
+        run: pytest -q --junitxml=report.xml
+
+      # Task 6: Save the test report
+      - name: Upload test report
+        if: always() # Must upload even when tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report-${{ matrix.python-version }}
+          path: report.xml
+
+  # Task 7: Smoke job
+  smoke:
+    needs: test # Runs only after test finishes successfully
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start the API
+        run: |
+          # Task 10 Bonus: Pass build number
+          export APP_VERSION="ci${{ github.run_number }}"
+          python app.py &
+          sleep 5
+
+      - name: Check /healthz status code
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:5000/healthz)
+          echo "got $code"
+          test "$code" = "200"
+
+      - name: Check /readyz response
+        run: |
+          response=$(curl -s http://127.0.0.1:5000/readyz)
+          echo "got $response"
+          echo "$response" | grep '"servers_loaded": 9'
+          
+      - name: Check /version response (Task 10 Bonus)
+        run: |
+          response=$(curl -s http://127.0.0.1:5000/version)
+          echo "got $response"
+          echo "$response" | grep "ci${{ github.run_number }}"
